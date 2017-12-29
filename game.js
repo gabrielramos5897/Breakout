@@ -95,6 +95,10 @@ function collisionDetection(){
 					dy = -dy;
 					b.status = 0;
 					score++;
+					if (score == brickRowCount * brickColumnCount) {
+						alert("You Win!!");
+						document.location.reload();
+					}
 				}
 			}
 		}
@@ -122,7 +126,7 @@ function draw() {
 		if(x > paddleX && x < paddleX + paddleWidth) {
 			dy = -dy;
 		} else {
-			// alert("Fatality!");
+		alert("Fatality!");
 		document.location.reload();
 		}
 	}
