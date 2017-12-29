@@ -19,12 +19,14 @@ var brickHeight = 20;
 var brickPadding = 10;
 var brickOffsetTop = 30;
 var brickOffsetLeft = 30;
+var score = 0;
+
 
 var bricks = [];
 for (c=0; c<brickColumnCount; c++){
 	bricks[c] = [];
 	for (r=0; r<brickRowCount; r++){
-		bricks[c][r] = {x: 0, y:0}
+		bricks[c][r] = {x: 0, y:0, status: 1};
 	}
 }
 
@@ -32,21 +34,22 @@ document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
 
 function drawBricks(){
-	for(c=0; c<brickColumnCount; c++){
-		for(r=0; r<brickRowCount; r++){
-			var brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
-			var brickY = (r*(brickWidth+brickPadding))+brickOffsetTop;
-			bricks[c][r].x = brickX;
-			bricks[c][r].y = brickY;
-			ctx.beginPath();
-			ctx.rect(brickX, brickY, brickWidth, brickHeight);
-			ctx.fillStyle = "#0095DD";
-			ctx.fill();
-			ctx.closePath();
+	for(c=0; c<brickColumnCount; c++) {
+		for(r=0; r<brickRowCount; r++) {
+			if (bricks[c][r].status == 1) {
+				var brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
+				var brickY = (r*(brickWidth+brickPadding))+brickOffsetTop;
+				bricks[c][r].x = brickX;
+				bricks[c][r].y = brickY;
+				ctx.beginPath();
+				ctx.rect(brickX, brickY, brickWidth, brickHeight);
+				ctx.fillStyle = "#0095DD";
+				ctx.fill();
+				ctx.closePath();
+			}
 		}
 	}
 }
-
 
 function keyDownHandler(e) {
 	if(e.keyCode == 39) {
@@ -87,12 +90,21 @@ function collisionDetection(){
 	for(c=0; c<brickColumnCount; c++){
 		for(r=0; r<brickRowCount; r++){
 			var b = bricks[c][r];
-			// Calculations
-			if (x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
-				dy = -dy;
+				if(b.status == 1){
+					if (x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+					dy = -dy;
+					b.status = 0;
+					score++;
+				}
 			}
 		}
 	}
+}
+
+function drawScore(){
+	ctx.font = "16px Arial";
+	ctx.fillStyle = "blue";
+	ctx.fillText("Score: "+score, 8, 20);
 }
 
 
@@ -101,14 +113,15 @@ function draw() {
 	drawBricks();
 	drawBall();
 	drawPaddle();
+	collisionDetection();
+	drawScore();
 
 	if (y +dy < ballRadius ) {
 		dy = -dy;
-	}
-	else if (y + dy > canvas.height-ballRadius) {
+	}else if (y + dy > canvas.height-ballRadius) {
 		if(x > paddleX && x < paddleX + paddleWidth) {
 			dy = -dy;
-		}else{
+		} else {
 			// alert("Fatality!");
 		document.location.reload();
 		}
